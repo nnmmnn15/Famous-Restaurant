@@ -18,14 +18,17 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
   // Property
   XFile? imageFile;
   final ImagePicker picker = ImagePicker();
-  late TextEditingController latController;
-  late TextEditingController longController;
+  late double lat;
+  late double long;
   late TextEditingController nameController;
   late TextEditingController telController;
   late TextEditingController reviewController;
   late String errorNameText;
   late String errorTelText;
   late String errorReviewText;
+
+  // 전화번호 정규식
+  late RegExp telRegExp;
 
   late int firstDisp; // 0 이면 처음화면 1 이면 이미지 선택후
 
@@ -36,21 +39,19 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
   @override
   void initState() {
     super.initState();
-    latController = TextEditingController();
-    longController = TextEditingController();
     nameController = TextEditingController();
     telController = TextEditingController();
     reviewController = TextEditingController();
 
-    latController.text = mustEatData.lat.toString();
-    longController.text = mustEatData.long.toString();
+    lat = mustEatData.lat;
+    long = mustEatData.long;
     nameController.text = mustEatData.name;
     telController.text = mustEatData.tel;
     reviewController.text = mustEatData.review;
 
-    firstDisp = 0;
+    telRegExp = RegExp(r'010-\d{4}-\d{4}');
 
-    // imageFile = XFile.fromData(mustEatData.image);
+    firstDisp = 0;
 
     errorNameText = '';
     errorTelText = '';
@@ -60,139 +61,164 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('맛집 수정'),
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () => getImageFromDevice(ImageSource.gallery),
-              child: const Text('이미지 선택'),
-            ),
-            SizedBox(
-              // 현재 기기의 width 크기를 가져옴
-              width: MediaQuery.of(context).size.width,
-              height: 200,
-              child: Center(
-                  // imageFile 은 null 값이 있을 수 있으므로
-                  child: firstDisp == 0
-                      ? Image.memory(mustEatData.image)
-                      : imageFile == null
-                          ? const Text('이미지를 추가해주세요')
-                          : Image.file(File(imageFile!.path))),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 1.2,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('맛집 수정'),
+        ),
+        body: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () => getImageFromDevice(ImageSource.gallery),
+                  child: const Text('이미지 선택'),
+                ),
+                SizedBox(
+                  // 현재 기기의 width 크기를 가져옴
+                  width: MediaQuery.of(context).size.width,
+                  height: 200,
+                  child: Center(
+                      // imageFile 은 null 값이 있을 수 있으므로
+                      child: firstDisp == 0
+                          ? Image.memory(mustEatData.image)
+                          : imageFile == null
+                              ? const Text('이미지를 추가해주세요')
+                              : Image.file(File(imageFile!.path))),
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 1.2,
+                  child: Column(
                     children: [
-                      const Text('위도 : '),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        child: TextField(
-                          readOnly: true,
-                          controller: latController,
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              const Icon(
+                                Icons.location_on, size: 40,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('위도'),
+                                  Text(lat.toString()),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('경도'),
+                                  Text(long.toString()),
+                                ],
+                              ),
+                            ],
+                          ),
                       ),
-                      const Text('경도 : '),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        child: TextField(
-                          readOnly: true,
-                          controller: longController,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('이름 : '),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 1.67,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextField(
+                                  keyboardType: TextInputType.text,
+                                  controller: nameController,
+                                ),
+                                Text(
+                                  errorNameText,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('전화 : '),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 1.67,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextField(
+                                  keyboardType: TextInputType.text,
+                                  controller: telController,
+                                ),
+                                Text(
+                                  errorTelText,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('평가 : '),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 1.67,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                    height: 100,
+                                    child: TextField(
+                                      minLines: null,
+                                      maxLines: null,
+                                      expands: true,
+                                      keyboardType: TextInputType.text,
+                                      controller: reviewController,
+                                      decoration: const InputDecoration(
+                                        enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black, width: 1)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black, width: 1)),
+                                      ),
+                                    ),
+                                  ),
+                                Text(
+                                  errorReviewText,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('이름 : '),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.67,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextField(
-                              controller: nameController,
-                            ),
-                            Text(
-                              errorNameText,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.red,
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('전화 : '),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.67,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextField(
-                              controller: telController,
-                            ),
-                            Text(
-                              errorTelText,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.red,
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('평가 : '),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.67,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextField(
-                              controller: reviewController,
-                            ),
-                            Text(
-                              errorReviewText,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.red,
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    firstDisp == 0
+                    ? checkData() 
+                    : checkDataAll();
+                  },
+                  child: const Text('수정'),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                print(firstDisp);
-                firstDisp == 0
-                ? checkData() 
-                : checkDataAll();
-              },
-              child: const Text('수정'),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -214,6 +240,7 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
   checkDataAll() async {
     if (nameController.text.trim().isNotEmpty &&
         telController.text.trim().isNotEmpty &&
+        telRegExp.hasMatch(telController.text.trim()) &&
         reviewController.text.trim().isNotEmpty &&
         imageFile != null) {
       errorNameText = '';
@@ -225,8 +252,8 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
       MustEat mustEat = MustEat(
         seq : mustEatData.seq,
         image: getImage,
-        lat: double.parse(latController.text),
-        long: double.parse(longController.text),
+        lat: lat,
+        long: long,
         name: nameController.text.trim(),
         tel: telController.text.trim(),
         review: reviewController.text.trim(),
@@ -244,6 +271,8 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
 
       if (telController.text.trim().isEmpty) {
         errorTelText = '값을 입력해주세요';
+      } else if (!telRegExp.hasMatch(telController.text.trim())) {
+        errorTelText = '입력이 올바르지 않습니다';
       } else {
         errorTelText = '';
       }
@@ -261,6 +290,7 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
   checkData() async {
     if (nameController.text.trim().isNotEmpty &&
         telController.text.trim().isNotEmpty &&
+        telRegExp.hasMatch(telController.text.trim()) &&
         reviewController.text.trim().isNotEmpty) {
       errorNameText = '';
       errorTelText = '';
@@ -269,8 +299,8 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
       MustEat mustEat = MustEat(
         seq : mustEatData.seq,
         image: mustEatData.image,
-        lat: double.parse(latController.text),
-        long: double.parse(longController.text),
+        lat: lat,
+        long: long,
         name: nameController.text.trim(),
         tel: telController.text.trim(),
         review: reviewController.text.trim(),
@@ -288,6 +318,8 @@ class _UpdateMustEatState extends State<UpdateMustEat> {
 
       if (telController.text.trim().isEmpty) {
         errorTelText = '값을 입력해주세요';
+      } else if (!telRegExp.hasMatch(telController.text.trim())) {
+        errorTelText = '입력이 올바르지 않습니다';
       } else {
         errorTelText = '';
       }

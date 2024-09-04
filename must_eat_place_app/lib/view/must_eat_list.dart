@@ -29,6 +29,10 @@ class _MustEatListState extends State<MustEatList> {
         title: const Text('내가 경험한 맛집 리스트'),
         actions: [
           IconButton(
+            onPressed: (){},
+            icon: const Icon(Icons.dark_mode),
+          ),
+          IconButton(
             onPressed: () {
               Get.to(
                 () => const AddMustEat(),
@@ -90,38 +94,48 @@ class _MustEatListState extends State<MustEatList> {
                         ),
                       ],
                     ),
-                    child: Card(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 130,
-                            height: 130,
-                            child: Image.memory(snapshot.data![index].image),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('이름'),
-                                Text(
-                                  snapshot.data![index].name,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                  ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Card(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: SizedBox(
+                                width: 130,
+                                height: 130,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child:
+                                      Image.memory(snapshot.data![index].image),
                                 ),
-                                const Text('전화번호'),
-                                Text(
-                                  snapshot.data![index].tel,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          )
-                        ],
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('이름'),
+                                  Text(
+                                    snapshot.data![index].name,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  const Text('전화번호'),
+                                  Text(
+                                    snapshot.data![index].tel,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
