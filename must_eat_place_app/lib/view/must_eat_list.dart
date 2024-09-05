@@ -114,6 +114,7 @@ class _MustEatListState extends State<MustEatList> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // 카테고리 드랍버튼
                 DropdownButton(
                   dropdownColor: Theme.of(context).colorScheme.onInverseSurface,
                   iconEnabledColor: Theme.of(context).colorScheme.secondary,
@@ -135,6 +136,7 @@ class _MustEatListState extends State<MustEatList> {
                     setState(() {});
                   },
                 ),
+                // 정렬 드랍버튼
                 DropdownButton(
                   dropdownColor: Theme.of(context).colorScheme.onInverseSurface,
                   iconEnabledColor: Theme.of(context).colorScheme.secondary,
@@ -161,6 +163,7 @@ class _MustEatListState extends State<MustEatList> {
           ),
           dropdownCategoryValue == '전체'
               ? Flexible(
+                // 전체 볼때
                   child: FutureBuilder(
                     future: handler.queryMustEat(dropdownOrderByValue),
                     builder: (context, snapshot) {
@@ -175,6 +178,7 @@ class _MustEatListState extends State<MustEatList> {
                   ),
                 )
               : Flexible(
+                // 카테고리 분류 할때
                   child: FutureBuilder(
                     future: handler.queryCategoryMustEat(
                         dropdownCategoryValue, dropdownOrderByValue),
@@ -195,6 +199,7 @@ class _MustEatListState extends State<MustEatList> {
   }
 
   // --- Function ---
+  // 리스트 생성 함수
   Widget listBuild(snapshotData) {
     return ListView.builder(
       itemCount: snapshotData!.length,

@@ -102,6 +102,7 @@ class _LocationPickerState extends State<LocationPicker> {
   }
 
   // ---Function---
+  // 맵 그리기
   Widget flutterMap() {
     return FlutterMap(
       mapController: mapController,

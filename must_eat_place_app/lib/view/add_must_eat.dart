@@ -117,6 +117,7 @@ class _AddMustEatState extends State<AddMustEat> {
           child: Center(
             child: Column(
               children: [
+                // 이미지
                 ElevatedButton(
                   onPressed: () => getImageFromDevice(ImageSource.gallery),
                   child: const Text('이미지 선택'),
@@ -135,6 +136,7 @@ class _AddMustEatState extends State<AddMustEat> {
                             )
                           : Image.file(File(imageFile!.path))),
                 ),
+                // 위치 변경, 카테고리
                 SizedBox(
                   width: MediaQuery.of(context).size.width / 1.1,
                   child: Column(
@@ -223,6 +225,9 @@ class _AddMustEatState extends State<AddMustEat> {
                           ],
                         ),
                       ),
+                      // ---------
+                      // 입력
+                      // 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -349,6 +354,7 @@ class _AddMustEatState extends State<AddMustEat> {
                           )
                         ],
                       ),
+                      // 입력 끝
                     ],
                   ),
                 ),
@@ -367,6 +373,7 @@ class _AddMustEatState extends State<AddMustEat> {
   }
 
   // --- Functions ---
+  // 이미지 선택
   getImageFromDevice(imageSource) async {
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
     if (pickedFile == null) {
@@ -377,6 +384,7 @@ class _AddMustEatState extends State<AddMustEat> {
     setState(() {});
   }
 
+  // 데이터 입력 체크
   checkData() async {
     if (nameController.text.trim().isNotEmpty &&
         telController.text.trim().isNotEmpty &&
@@ -392,7 +400,7 @@ class _AddMustEatState extends State<AddMustEat> {
       errorReviewText = '';
 
       // insert
-
+      // 조건 만족시 입력 // 빈값, 전화번호, 점수 범위 체크
       File imageFile1 = File(imageFile!.path);
       Uint8List getImage = await imageFile1.readAsBytes();
       MustEat mustEat = MustEat(
@@ -441,9 +449,10 @@ class _AddMustEatState extends State<AddMustEat> {
     setState(() {});
   }
 
+  // 카테고리 및 맛집추가 성공시
   insertDialog() {
     Get.defaultDialog(
-      title: "성공",
+      title: "입력 성공",
       middleText: '입력이 정상적으로 완료되었습니다.',
       barrierDismissible: false,
       actions: [
@@ -458,6 +467,7 @@ class _AddMustEatState extends State<AddMustEat> {
     );
   }
 
+  // 카테고리 추가
   addCategory() {
     Get.dialog(barrierDismissible: false, Builder(
       builder: (context) {
@@ -471,6 +481,8 @@ class _AddMustEatState extends State<AddMustEat> {
                   children: [
                     TextField(
                       controller: categoryController,
+                      keyboardType: TextInputType.text,
+                      autofocus: true,
                       decoration: const InputDecoration(
                         labelText: '카테고리 명을 입력하세요',
                       ),
@@ -488,19 +500,24 @@ class _AddMustEatState extends State<AddMustEat> {
               actions: [
                 TextButton(
                   onPressed: () async {
+                    // 카테고리 빈값 체크
                     if (categoryController.text.trim() == '') {
                       errorCategoryText = '카테고리를 입력해주세요';
                     } else {
-                      int result = await categoryHandler
-                          .insertCategory(categoryController.text.trim());
-                      if (result == 0) {
+                      // 카테고리 중복 체크
+                      int result = await categoryHandler.categoryCheck(categoryController.text.trim());
+                      if (result != 0) {
                         errorCategoryText = '카테고리가 중복됩니다';
                       } else {
+                        // 카테고리 추가
+                        await categoryHandler
+                          .insertCategory(categoryController.text.trim());
                         insertDialog();
                         getCategory();
+                        errorCategoryText = '';
+                        categoryController.text = '';
                       }
                     }
-                    errorCategoryText = '';
                     dialogSetState(() {});
                     setState(() {});
                   },

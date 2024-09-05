@@ -88,6 +88,7 @@ class _MustEatLocationState extends State<MustEatLocation> {
   }
 
   // --- Function ---
+  // 지도 그리기
   Widget flutterMap() {
     return FlutterMap(
       mapController: mapController,
@@ -155,7 +156,7 @@ class _MustEatLocationState extends State<MustEatLocation> {
 
   // --- Functions ---
   calcDis() {
-    // 거리 계산
+    // 거리 계산 // 단위 = Meter
     const latlng.Distance distanceCalc = latlng.Distance();
     distance = distanceCalc.as(
       latlng.LengthUnit.Meter,
