@@ -115,7 +115,7 @@ class _MustEatListState extends State<MustEatList> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 DropdownButton(
-                  dropdownColor: Theme.of(context).colorScheme.primaryContainer,
+                  dropdownColor: Theme.of(context).colorScheme.onInverseSurface,
                   iconEnabledColor: Theme.of(context).colorScheme.secondary,
                   value: dropdownCategoryValue, // 현재 값
                   icon: const Icon(Icons.keyboard_arrow_down),
@@ -126,9 +126,6 @@ class _MustEatListState extends State<MustEatList> {
                         width: 100,
                         child: Text(
                           category,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
                         ),
                       ),
                     );
@@ -138,148 +135,37 @@ class _MustEatListState extends State<MustEatList> {
                     setState(() {});
                   },
                 ),
-                // DropdownButton(
-                //   dropdownColor: Theme.of(context).colorScheme.primaryContainer,
-                //   iconEnabledColor: Theme.of(context).colorScheme.secondary,
-                //   value: dropdownOrderByValue, // 현재 값
-                //   icon: const Icon(Icons.keyboard_arrow_down),
-                //   items: orderBy.map((String orderBy) {
-                //     return DropdownMenuItem(
-                //       value: orderBy,
-                //       child: SizedBox(
-                //         width: 100,
-                //         child: Text(
-                //           orderBy,
-                //           style: TextStyle(
-                //             color: Theme.of(context).colorScheme.tertiary,
-                //           ),
-                //         ),
-                //       ),
-                //     );
-                //   }).toList(),
-                //   onChanged: (value) {
-                //     dropdownOrderByValue = value!;
-                //     setState(() {});
-                //   },
-                // ),
+                DropdownButton(
+                  dropdownColor: Theme.of(context).colorScheme.onInverseSurface,
+                  iconEnabledColor: Theme.of(context).colorScheme.secondary,
+                  value: dropdownOrderByValue, // 현재 값
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  items: orderBy.map((String orderBy) {
+                    return DropdownMenuItem(
+                      value: orderBy,
+                      child: SizedBox(
+                        width: 100,
+                        child: Text(
+                          orderBy,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    dropdownOrderByValue = value!;
+                    setState(() {});
+                  },
+                ),
               ],
             ),
           ),
           dropdownCategoryValue == '전체'
               ? Flexible(
                   child: FutureBuilder(
-                    future: handler.queryMustEat(),
+                    future: handler.queryMustEat(dropdownOrderByValue),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                Get.to(() => const MustEatLocation(),
-                                    arguments: [
-                                      snapshot.data![index].lat,
-                                      snapshot.data![index].long,
-                                      snapshot.data![index].name,
-                                    ]);
-                              },
-                              child: Slidable(
-                                // 왼쪽에서 오른쪽 수정
-                                startActionPane: ActionPane(
-                                  extentRatio: .3,
-                                  motion: const BehindMotion(),
-                                  children: [
-                                    SlidableAction(
-                                      backgroundColor: Colors.green,
-                                      icon: Icons.edit,
-                                      label: '수정',
-                                      onPressed: (context) {
-                                        Get.to(
-                                          () => const UpdateMustEat(),
-                                          arguments: snapshot.data![index],
-                                        )?.then(
-                                          (value) => setState(() {}),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                // 오른쪽에서 왼쪽으로 슬라이드 삭제
-                                endActionPane: ActionPane(
-                                  extentRatio: .3, // 사이즈 최대 1
-                                  motion: const BehindMotion(),
-                                  children: [
-                                    SlidableAction(
-                                      backgroundColor: Colors.red,
-                                      icon: Icons.delete,
-                                      label: '삭제',
-                                      onPressed: (context) => deleteDialog(
-                                          snapshot.data![index].seq),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Card(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(15.0),
-                                          child: SizedBox(
-                                            width: 130,
-                                            height: 130,
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              child: Image.memory(
-                                                  snapshot.data![index].image),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Text('이름'),
-                                              Text(
-                                                snapshot.data![index].name,
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                ),
-                                              ),
-                                              const Text('전화번호'),
-                                              Text(
-                                                snapshot.data![index].tel,
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                ),
-                                              ),
-                                              const Text('점수'),
-                                              Text(
-                                                snapshot.data![index].score
-                                                    .toString(),
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                        return listBuild(snapshot.data);
                       } else {
                         return const Center(
                           child: Text('저장한 맛집이 없습니다'),
@@ -290,110 +176,11 @@ class _MustEatListState extends State<MustEatList> {
                 )
               : Flexible(
                   child: FutureBuilder(
-                    future: handler.queryCategoryMustEat(dropdownCategoryValue),
+                    future: handler.queryCategoryMustEat(
+                        dropdownCategoryValue, dropdownOrderByValue),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                Get.to(() => const MustEatLocation(),
-                                    arguments: [
-                                      snapshot.data![index].lat,
-                                      snapshot.data![index].long,
-                                      snapshot.data![index].name,
-                                    ]);
-                              },
-                              child: Slidable(
-                                // 왼쪽에서 오른쪽 수정
-                                startActionPane: ActionPane(
-                                  extentRatio: .3,
-                                  motion: const BehindMotion(),
-                                  children: [
-                                    SlidableAction(
-                                      backgroundColor: Colors.green,
-                                      icon: Icons.edit,
-                                      label: '수정',
-                                      onPressed: (context) {
-                                        Get.to(
-                                          () => const UpdateMustEat(),
-                                          arguments: snapshot.data![index],
-                                        )?.then(
-                                          (value) => setState(() {}),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                // 오른쪽에서 왼쪽으로 슬라이드 삭제
-                                endActionPane: ActionPane(
-                                  extentRatio: .3, // 사이즈 최대 1
-                                  motion: const BehindMotion(),
-                                  children: [
-                                    SlidableAction(
-                                      backgroundColor: Colors.red,
-                                      icon: Icons.delete,
-                                      label: '삭제',
-                                      onPressed: (context) => deleteDialog(
-                                          snapshot.data![index].seq),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Card(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(15.0),
-                                          child: SizedBox(
-                                            width: 130,
-                                            height: 130,
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              child: Image.memory(
-                                                  snapshot.data![index].image),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Text('이름'),
-                                              Text(
-                                                snapshot.data![index].name,
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                ),
-                                              ),
-                                              const Text('전화번호'),
-                                              Text(
-                                                snapshot.data![index].tel,
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                        return listBuild(snapshot.data);
                       } else {
                         return const Center(
                           child: Text('저장한 맛집이 없습니다'),
@@ -408,6 +195,114 @@ class _MustEatListState extends State<MustEatList> {
   }
 
   // --- Function ---
+  Widget listBuild(snapshotData) {
+    return ListView.builder(
+      itemCount: snapshotData!.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            Get.to(() => const MustEatLocation(), arguments: [
+              snapshotData![index].lat,
+              snapshotData![index].long,
+              snapshotData![index].name,
+            ]);
+          },
+          child: Slidable(
+            // 왼쪽에서 오른쪽 수정
+            startActionPane: ActionPane(
+              extentRatio: .3,
+              motion: const BehindMotion(),
+              children: [
+                SlidableAction(
+                  backgroundColor: Colors.green,
+                  icon: Icons.edit,
+                  label: '수정',
+                  onPressed: (context) {
+                    Get.to(
+                      () => const UpdateMustEat(),
+                      arguments: snapshotData![index],
+                    )?.then(
+                      (value) => setState(() {}),
+                    );
+                  },
+                ),
+              ],
+            ),
+            // 오른쪽에서 왼쪽으로 슬라이드 삭제
+            endActionPane: ActionPane(
+              extentRatio: .3, // 사이즈 최대 1
+              motion: const BehindMotion(),
+              children: [
+                SlidableAction(
+                  backgroundColor: Colors.red,
+                  icon: Icons.delete,
+                  label: '삭제',
+                  onPressed: (context) =>
+                      deleteDialog(snapshotData![index].seq),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(width: .8, color: Theme.of(context).colorScheme.outline)
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: SizedBox(
+                        width: 130,
+                        height: 130,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.memory(snapshotData![index].image),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('이름'),
+                          Text(
+                            snapshotData![index].name,
+                            style: const TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          const Text('전화번호'),
+                          Text(
+                            snapshotData![index].tel,
+                            style: const TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          const Text('점수'),
+                          Text(
+                            snapshotData![index].score.toString(),
+                            style: const TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   deleteDialog(int? seq) {
     Get.defaultDialog(
       title: '삭제',

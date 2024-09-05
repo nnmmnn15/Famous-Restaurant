@@ -65,7 +65,7 @@ class _MustEatLocationState extends State<MustEatLocation> {
                   ),
                 ),
                 const Icon(
-                  Icons.pin_drop,
+                  Icons.location_on,
                   size: 50,
                   color: Colors.red,
                 )

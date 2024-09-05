@@ -26,22 +26,31 @@ class MustEatHandler {
     return result;
   }
 
-  Future<List<MustEat>> queryMustEat() async {
+  Future<List<MustEat>> queryMustEat(String orderBy) async {
+    String query = '';
+    if(orderBy == '이름순'){
+      query = "SELECT * FROM must_eat ORDER BY name";
+    } else if (orderBy == '점수 높은 순'){
+      query = "SELECT * FROM must_eat ORDER BY score Desc, name";
+    } else {
+      query = "SELECT * FROM must_eat ORDER BY score, name";
+    }
     final Database db = await handler.initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.rawQuery('''
-          SELECT *
-          FROM must_eat
-          ''');
+    final List<Map<String, Object?>> queryResult = await db.rawQuery(query);
     return queryResult.map((e) => MustEat.fromMap(e)).toList();
   }
 
-  Future<List<MustEat>> queryCategoryMustEat(String category) async {
+  Future<List<MustEat>> queryCategoryMustEat(String category, String orderBy) async {
+    String query = '';
+    if(orderBy == '이름순'){
+      query = "SELECT * FROM must_eat WHERE category = ? ORDER BY name";
+    } else if (orderBy == '점수 높은 순'){
+      query = "SELECT * FROM must_eat WHERE category = ? ORDER BY score Desc, name";
+    } else {
+      query = "SELECT * FROM must_eat WHERE category = ? ORDER BY score, name";
+    }
     final Database db = await handler.initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.rawQuery('''
-          SELECT *
-          FROM must_eat
-          WHERE category = ?
-          ''',[category]);
+    final List<Map<String, Object?>> queryResult = await db.rawQuery(query,[category]);
     return queryResult.map((e) => MustEat.fromMap(e)).toList();
   }
 
