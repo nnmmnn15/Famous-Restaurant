@@ -10,15 +10,17 @@ class MustEatHandler {
     final Database db = await handler.initializeDB();
 
     result = await db.rawInsert("""
-      insert into must_eat(image, lat, long, name, tel, review)
-      values (?, ?, ?, ?, ?, ?)
+      insert into must_eat(image, lat, long, name, tel, review, category, score)
+      values (?, ?, ?, ?, ?, ?, ?, ?)
       """, [
       mustEat.image,
       mustEat.lat,
       mustEat.long,
       mustEat.name,
       mustEat.tel,
-      mustEat.review
+      mustEat.review,
+      mustEat.category,
+      mustEat.score,
     ]);
 
     return result;
@@ -30,6 +32,16 @@ class MustEatHandler {
           SELECT *
           FROM must_eat
           ''');
+    return queryResult.map((e) => MustEat.fromMap(e)).toList();
+  }
+
+  Future<List<MustEat>> queryCategoryMustEat(String category) async {
+    final Database db = await handler.initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.rawQuery('''
+          SELECT *
+          FROM must_eat
+          WHERE category = ?
+          ''',[category]);
     return queryResult.map((e) => MustEat.fromMap(e)).toList();
   }
 
@@ -50,7 +62,7 @@ class MustEatHandler {
 
     result = await db.rawUpdate("""
       UPDATE must_eat 
-      SET image = ?, lat = ?, long = ?, name = ?, tel = ?, review = ?
+      SET image = ?, lat = ?, long = ?, name = ?, tel = ?, review = ?, category = ?, score = ?
       WHERE seq = ?
       """, [
       mustEat.image,
@@ -59,6 +71,8 @@ class MustEatHandler {
       mustEat.name,
       mustEat.tel,
       mustEat.review,
+      mustEat.category,
+      mustEat.score,
       mustEat.seq,
     ]);
 

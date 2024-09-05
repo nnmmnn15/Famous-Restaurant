@@ -8,6 +8,8 @@ class MustEat{
   String name;
   String tel;
   String review;
+  String category;
+  int score;
 
   MustEat({
     this.seq,
@@ -17,6 +19,8 @@ class MustEat{
     required this.name,
     required this.tel,
     required this.review,
+    required this.category,
+    required this.score,
   });
 
   MustEat.fromMap(Map<String, dynamic> res):
@@ -26,5 +30,7 @@ class MustEat{
     long = res['long'],
     name = res['name'],
     tel = res['tel'],
-    review = res['review'];
+    review = res['review'],
+    category = res['category'],
+    score = res['score'];
 }

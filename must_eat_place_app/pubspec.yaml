@@ -38,7 +38,9 @@ dependencies:
 
   # getX
   get: ^4.6.6
-
+  # getStorage
+  get_storage: ^2.1.1
+  
   # MAP_Package
   # 지도
   flutter_map: ^7.0.2

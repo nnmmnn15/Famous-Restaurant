@@ -16,9 +16,18 @@ class DatabaseHandler{
               long real,
               name text,
               tel text,
-              review text
+              review text,
+              category text,
+              score integer
             )
         """);
+        await db.execute("""
+            create table category
+            (
+              name text primary key
+            )
+        """
+        );
       },
       version: 1,
     );

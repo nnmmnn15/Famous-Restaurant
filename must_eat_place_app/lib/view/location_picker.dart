@@ -18,11 +18,15 @@ class _LocationPickerState extends State<LocationPicker> {
   late MapController mapController;
   late bool canRun;
 
+  var value = Get.arguments ?? "__";
+
   @override
   void initState() {
     super.initState();
     mapController = MapController();
     canRun = false;
+    latData = value[0];
+    longData = value[1];
     checkLocationPermission();
   }
 
@@ -48,8 +52,8 @@ class _LocationPickerState extends State<LocationPicker> {
     Position position = await Geolocator.getCurrentPosition();
     currentPosition = position;
     canRun = true;
-    latData = currentPosition.latitude;
-    longData = currentPosition.longitude;
+    // latData = currentPosition.latitude;
+    // longData = currentPosition.longitude;
     setState(() {});
   }
 
@@ -61,17 +65,42 @@ class _LocationPickerState extends State<LocationPicker> {
         automaticallyImplyLeading: false,
       ),
       body: canRun
-          ? flutterMap()
+          ? Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Get.back(),
+                      child: const Text('취소'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        latData = currentPosition.latitude;
+                        longData = currentPosition.longitude;
+                        setState(() {});
+                      },
+                      child: const Text('내 위치'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Get.back(result: [latData, longData]),
+                      child: const Text('선택'),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 1.3,
+                  child: flutterMap(),
+                ),
+              ],
+            )
           : const Center(
               child: CircularProgressIndicator(),
             ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.location_on),
-        onPressed: () {
-          Get.back(
-            result: [latData, longData]
-          );
-        },
+        child: const Text('적용'),
+        onPressed: () {},
       ),
     );
   }
@@ -112,7 +141,7 @@ class _LocationPickerState extends State<LocationPicker> {
                     ),
                   ),
                   Icon(
-                    Icons.pin_drop,
+                    Icons.location_on,
                     size: 50,
                     color: Colors.red,
                   )
