@@ -98,10 +98,6 @@ class _LocationPickerState extends State<LocationPicker> {
           : const Center(
               child: CircularProgressIndicator(),
             ),
-      floatingActionButton: FloatingActionButton(
-        child: const Text('적용'),
-        onPressed: () {},
-      ),
     );
   }
 
